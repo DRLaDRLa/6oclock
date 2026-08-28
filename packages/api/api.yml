@@ -14843,6 +14843,7 @@ components:
           description: 'The MD5 hash of the replacement file'
         source:
           type: 'string'
+          nullable: true
           description: 'The source URLs for the replacement, separated by newlines'
         file_name:
           type: 'string'

@@ -34,8 +34,11 @@ export interface PostReplacement {
   image_width: number;
   /** The MD5 hash of the replacement file */
   md5: string;
-  /** The source URLs for the replacement, separated by newlines */
-  source: string;
+  /**
+   * The source URLs for the replacement, separated by newlines
+   * @nullable
+   */
+  source: string | null;
   /** The name of the replacement file */
   file_name: string;
   status: PostReplacementStatus;
