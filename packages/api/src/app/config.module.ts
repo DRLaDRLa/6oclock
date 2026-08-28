@@ -28,7 +28,7 @@ export enum AppConfigKeys {
         PORT: Joi.number().optional().default(34571),
         E621_GLOBAL_USERNAME: Joi.string().required(),
         E621_GLOBAL_API_KEY: Joi.string().required(),
-        E621_SYSTEM_USER_ID: Joi.number().optional().default(360277),
+        E621_SYSTEM_USER_ID: Joi.number().optional().default(2),
         E621_UNAPPROVED_POST_DELETION_WINDOW_DAYS: Joi.number()
           .optional()
           .default(30),
@@ -38,7 +38,7 @@ export enum AppConfigKeys {
           .allow(''),
         DATA_DIR: Joi.string().optional().default('./data'),
         TECHNICIANS: Joi.string().optional().default('').allow(''),
-        OIDC_ISSUER: Joi.string().optional().default('https://e621.net'),
+        OIDC_ISSUER: Joi.string().optional().default('https://e6ai.net'),
         OIDC_CLIENT_ID: Joi.string().optional().default('').allow(''),
         OIDC_CLIENT_SECRET: Joi.string().optional().default('').allow(''),
         OIDC_REDIRECT_URI: Joi.string().optional().default('').allow(''),

@@ -1,9 +1,9 @@
 openapi: '3.0.3'
 info:
-  title: 'e621 API'
+  title: 'e6ai API'
   version: '2da4b89799b7799a4920adfe14112939976b4fcd'
   description: |
-    An API for accessing user information and other resources on e621 and e926.
+    An API for accessing user information and other resources on e6ai.
 
     The `x-access-level` extension declares the minimum privilege level for an
     operation. Most values name a user level, and the level named plus every
@@ -15,10 +15,8 @@ info:
     `approver`, `bd_staff` and `bd_auditor` name a per-user flag on the account
     instead of a level: `can_approve_posts`, `is_bd_staff` and `is_bd_auditor`.
 servers:
-  - url: 'https://e621.net'
-    description: 'Production server for e621'
-  - url: 'https://e926.net'
-    description: 'SFW server for e926'
+  - url: 'https://e6ai.net'
+    description: 'Production server for e6ai'
 security:
   - {}
   - BasicAuth: []
@@ -3232,7 +3230,7 @@ paths:
           description: 'Invalid request parameters'
         500:
           description: 'Server error'
-  /artists.json:
+  /directors.json:
     get:
       operationId: 'getArtists'
       x-access-level: 'anonymous'
@@ -3362,7 +3360,7 @@ paths:
           description: 'Access denied, or a supplied attribute is not permitted at this user level'
         422:
           description: 'Validation error'
-  /artists/{id}.json:
+  /directors/{id}.json:
     get:
       operationId: 'getArtist'
       x-access-level: 'anonymous'
@@ -7137,320 +7135,320 @@ paths:
                   description: 'Unique IP addresses'
         403:
           description: 'Access denied'
-  /avoid_postings.json:
-    get:
-      operationId: 'getAvoidPostings'
-      x-access-level: 'anonymous'
-      tags:
-        - 'avoid_postings'
-      summary: 'Get a list of avoid posting entries'
-      description: 'Returns a list of avoid posting (Do Not Post) entries.'
-      parameters:
-        - name: 'page'
-          in: 'query'
-          required: false
-          description: 'The page number to retrieve'
-          schema:
-            type: 'integer'
-        - name: 'limit'
-          in: 'query'
-          required: false
-          description: 'The number of entries to retrieve per page'
-          schema:
-            type: 'integer'
-        - name: 'search[creator_name]'
-          in: 'query'
-          required: false
-          description: "Filter by the creator's username"
-          schema:
-            type: 'string'
-        - name: 'search[creator_id]'
-          in: 'query'
-          required: false
-          description: "Filter by the creator's user ID"
-          schema:
-            type: 'integer'
-        - name: 'search[artist_name]'
-          in: 'query'
-          required: false
-          description: 'Filter by exact artist name'
-          schema:
-            type: 'string'
-        - name: 'search[artist_id]'
-          in: 'query'
-          required: false
-          description: 'Filter by artist ID'
-          schema:
-            type: 'integer'
-        - name: 'search[any_name_matches]'
-          in: 'query'
-          required: false
-          description: 'Filter by partial name match (searches name, other names, and group name)'
-          schema:
-            type: 'string'
-        - name: 'search[any_other_name_matches]'
-          in: 'query'
-          required: false
-          description: 'Filter by other name match'
-          schema:
-            type: 'string'
-        - name: 'search[group_name]'
-          in: 'query'
-          required: false
-          description: 'Filter by group name'
-          schema:
-            type: 'string'
-        - name: 'search[details]'
-          in: 'query'
-          required: false
-          description: 'Filter by details text'
-          schema:
-            type: 'string'
-        - name: 'search[is_active]'
-          in: 'query'
-          required: false
-          description: 'Filter by active status'
-          schema:
-            type: 'boolean'
-        - name: 'search[order]'
-          in: 'query'
-          required: false
-          description: 'Order the results'
-          schema:
-            $ref: '#/components/schemas/GetAvoidPostingsSearchOrder'
-      responses:
-        200:
-          description: 'A list of avoid posting entries'
-          content:
-            application/json:
-              schema:
-                type: 'array'
-                items:
-                  $ref: '#/components/schemas/AvoidPosting'
-        400:
-          description: 'Invalid request parameters'
-        500:
-          description: 'Server error'
-    post:
-      operationId: 'createAvoidPosting'
-      x-access-level: 'bd_staff'
-      tags:
-        - 'avoid_postings'
-      summary: 'Create an avoid posting entry'
-      description: 'Creates a new avoid posting (Do Not Post) entry.'
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CreateAvoidPostingBody'
-      responses:
-        201:
-          description: 'The created avoid posting entry'
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/AvoidPosting'
-        422:
-          description: 'Validation error'
-        403:
-          description: 'Access denied'
-  /avoid_postings/{id}.json:
-    get:
-      operationId: 'getAvoidPosting'
-      x-access-level: 'anonymous'
-      tags:
-        - 'avoid_postings'
-      summary: 'Get an avoid posting entry by ID or name'
-      description: 'Returns detailed information about a specific avoid posting entry. The ID can be a numeric ID or an artist name.'
-      parameters:
-        - name: 'id'
-          in: 'path'
-          required: true
-          description: 'The ID or artist name of the avoid posting entry'
-          schema:
-            type: 'string'
-      responses:
-        200:
-          description: 'Successful response containing avoid posting details'
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/AvoidPosting'
-        404:
-          description: 'Avoid posting entry not found'
-        500:
-          description: 'Server error'
-    put:
-      operationId: 'updateAvoidPosting'
-      x-access-level: 'bd_staff'
-      tags:
-        - 'avoid_postings'
-      summary: 'Update an avoid posting entry'
-      description: 'Updates an existing avoid posting entry.'
-      parameters:
-        - name: 'id'
-          in: 'path'
-          required: true
-          description: 'The ID or artist name of the avoid posting entry'
-          schema:
-            type: 'string'
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/UpdateAvoidPostingBody'
-      responses:
-        204:
-          description: 'The updated avoid posting entry'
-        422:
-          description: 'Validation error'
-        403:
-          description: 'Access denied'
-    delete:
-      operationId: 'destroyAvoidPosting'
-      x-access-level: 'bd_staff'
-      tags:
-        - 'avoid_postings'
-      summary: 'Destroy an avoid posting entry'
-      description: 'Permanently destroys an avoid posting entry and redirects to the artist it belonged to.'
-      parameters:
-        - name: 'id'
-          in: 'path'
-          required: true
-          description: 'The ID or artist name of the avoid posting entry'
-          schema:
-            type: 'string'
-      responses:
-        302:
-          description: 'Redirects to the artist after destroying the entry'
-        403:
-          description: 'Access denied'
-        404:
-          description: 'Avoid posting entry not found'
-  /avoid_postings/{id}/delete.json:
-    put:
-      operationId: 'deleteAvoidPosting'
-      x-access-level: 'bd_staff'
-      tags:
-        - 'avoid_postings'
-      summary: 'Soft-delete an avoid posting entry'
-      description: 'Marks an avoid posting entry as inactive (soft delete).'
-      parameters:
-        - name: 'id'
-          in: 'path'
-          required: true
-          description: 'The ID or artist name of the avoid posting entry'
-          schema:
-            type: 'string'
-      responses:
-        302:
-          description: 'Redirects back after soft-deleting'
-        403:
-          description: 'Access denied'
-  /avoid_postings/{id}/undelete.json:
-    put:
-      operationId: 'undeleteAvoidPosting'
-      x-access-level: 'bd_staff'
-      tags:
-        - 'avoid_postings'
-      summary: 'Undelete an avoid posting entry'
-      description: 'Restores a soft-deleted avoid posting entry to active status.'
-      parameters:
-        - name: 'id'
-          in: 'path'
-          required: true
-          description: 'The ID or artist name of the avoid posting entry'
-          schema:
-            type: 'string'
-      responses:
-        302:
-          description: 'Redirects back after undeleting'
-        403:
-          description: 'Access denied'
-  /avoid_posting_versions.json:
-    get:
-      operationId: 'getAvoidPostingVersions'
-      x-access-level: 'anonymous'
-      tags:
-        - 'avoid_postings'
-      summary: 'Get a list of avoid posting versions'
-      description: 'Returns a list of avoid posting version history entries.'
-      parameters:
-        - name: 'page'
-          in: 'query'
-          required: false
-          description: 'The page number to retrieve'
-          schema:
-            type: 'integer'
-        - name: 'limit'
-          in: 'query'
-          required: false
-          description: 'The number of versions to retrieve per page'
-          schema:
-            type: 'integer'
-        - name: 'search[updater_name]'
-          in: 'query'
-          required: false
-          description: 'Filter by updater username'
-          schema:
-            type: 'string'
-        - name: 'search[updater_id]'
-          in: 'query'
-          required: false
-          description: 'Filter by updater user ID'
-          schema:
-            type: 'integer'
-        - name: 'search[artist_name]'
-          in: 'query'
-          required: false
-          description: 'Filter by artist name'
-          schema:
-            type: 'string'
-        - name: 'search[artist_id]'
-          in: 'query'
-          required: false
-          description: 'Filter by artist ID'
-          schema:
-            type: 'integer'
-        - name: 'search[any_name_matches]'
-          in: 'query'
-          required: false
-          description: 'Filter by partial name match'
-          schema:
-            type: 'string'
-        - name: 'search[any_other_name_matches]'
-          in: 'query'
-          required: false
-          description: 'Filter by other name match'
-          schema:
-            type: 'string'
-        - name: 'search[group_name]'
-          in: 'query'
-          required: false
-          description: 'Filter by group name'
-          schema:
-            type: 'string'
-        - name: 'search[is_active]'
-          in: 'query'
-          required: false
-          description: 'Filter by active status'
-          schema:
-            type: 'boolean'
-      responses:
-        200:
-          description: 'A list of avoid posting versions'
-          content:
-            application/json:
-              schema:
-                type: 'array'
-                items:
-                  $ref: '#/components/schemas/AvoidPostingVersion'
-        400:
-          description: 'Invalid request parameters'
-        500:
-          description: 'Server error'
+  # /avoid_postings.json:
+  #   get:
+  #     operationId: 'getAvoidPostings'
+  #     x-access-level: 'anonymous'
+  #     tags:
+  #       - 'avoid_postings'
+  #     summary: 'Get a list of avoid posting entries'
+  #     description: 'Returns a list of avoid posting (Do Not Post) entries.'
+  #     parameters:
+  #       - name: 'page'
+  #         in: 'query'
+  #         required: false
+  #         description: 'The page number to retrieve'
+  #         schema:
+  #           type: 'integer'
+  #       - name: 'limit'
+  #         in: 'query'
+  #         required: false
+  #         description: 'The number of entries to retrieve per page'
+  #         schema:
+  #           type: 'integer'
+  #       - name: 'search[creator_name]'
+  #         in: 'query'
+  #         required: false
+  #         description: "Filter by the creator's username"
+  #         schema:
+  #           type: 'string'
+  #       - name: 'search[creator_id]'
+  #         in: 'query'
+  #         required: false
+  #         description: "Filter by the creator's user ID"
+  #         schema:
+  #           type: 'integer'
+  #       - name: 'search[artist_name]'
+  #         in: 'query'
+  #         required: false
+  #         description: 'Filter by exact artist name'
+  #         schema:
+  #           type: 'string'
+  #       - name: 'search[artist_id]'
+  #         in: 'query'
+  #         required: false
+  #         description: 'Filter by artist ID'
+  #         schema:
+  #           type: 'integer'
+  #       - name: 'search[any_name_matches]'
+  #         in: 'query'
+  #         required: false
+  #         description: 'Filter by partial name match (searches name, other names, and group name)'
+  #         schema:
+  #           type: 'string'
+  #       - name: 'search[any_other_name_matches]'
+  #         in: 'query'
+  #         required: false
+  #         description: 'Filter by other name match'
+  #         schema:
+  #           type: 'string'
+  #       - name: 'search[group_name]'
+  #         in: 'query'
+  #         required: false
+  #         description: 'Filter by group name'
+  #         schema:
+  #           type: 'string'
+  #       - name: 'search[details]'
+  #         in: 'query'
+  #         required: false
+  #         description: 'Filter by details text'
+  #         schema:
+  #           type: 'string'
+  #       - name: 'search[is_active]'
+  #         in: 'query'
+  #         required: false
+  #         description: 'Filter by active status'
+  #         schema:
+  #           type: 'boolean'
+  #       - name: 'search[order]'
+  #         in: 'query'
+  #         required: false
+  #         description: 'Order the results'
+  #         schema:
+  #           $ref: '#/components/schemas/GetAvoidPostingsSearchOrder'
+  #     responses:
+  #       200:
+  #         description: 'A list of avoid posting entries'
+  #         content:
+  #           application/json:
+  #             schema:
+  #               type: 'array'
+  #               items:
+  #                 $ref: '#/components/schemas/AvoidPosting'
+  #       400:
+  #         description: 'Invalid request parameters'
+  #       500:
+  #         description: 'Server error'
+  #   post:
+  #     operationId: 'createAvoidPosting'
+  #     x-access-level: 'bd_staff'
+  #     tags:
+  #       - 'avoid_postings'
+  #     summary: 'Create an avoid posting entry'
+  #     description: 'Creates a new avoid posting (Do Not Post) entry.'
+  #     requestBody:
+  #       required: true
+  #       content:
+  #         application/json:
+  #           schema:
+  #             $ref: '#/components/schemas/CreateAvoidPostingBody'
+  #     responses:
+  #       201:
+  #         description: 'The created avoid posting entry'
+  #         content:
+  #           application/json:
+  #             schema:
+  #               $ref: '#/components/schemas/AvoidPosting'
+  #       422:
+  #         description: 'Validation error'
+  #       403:
+  #         description: 'Access denied'
+  # /avoid_postings/{id}.json:
+  #   get:
+  #     operationId: 'getAvoidPosting'
+  #     x-access-level: 'anonymous'
+  #     tags:
+  #       - 'avoid_postings'
+  #     summary: 'Get an avoid posting entry by ID or name'
+  #     description: 'Returns detailed information about a specific avoid posting entry. The ID can be a numeric ID or an artist name.'
+  #     parameters:
+  #       - name: 'id'
+  #         in: 'path'
+  #         required: true
+  #         description: 'The ID or artist name of the avoid posting entry'
+  #         schema:
+  #           type: 'string'
+  #     responses:
+  #       200:
+  #         description: 'Successful response containing avoid posting details'
+  #         content:
+  #           application/json:
+  #             schema:
+  #               $ref: '#/components/schemas/AvoidPosting'
+  #       404:
+  #         description: 'Avoid posting entry not found'
+  #       500:
+  #         description: 'Server error'
+  #   put:
+  #     operationId: 'updateAvoidPosting'
+  #     x-access-level: 'bd_staff'
+  #     tags:
+  #       - 'avoid_postings'
+  #     summary: 'Update an avoid posting entry'
+  #     description: 'Updates an existing avoid posting entry.'
+  #     parameters:
+  #       - name: 'id'
+  #         in: 'path'
+  #         required: true
+  #         description: 'The ID or artist name of the avoid posting entry'
+  #         schema:
+  #           type: 'string'
+  #     requestBody:
+  #       required: true
+  #       content:
+  #         application/json:
+  #           schema:
+  #             $ref: '#/components/schemas/UpdateAvoidPostingBody'
+  #     responses:
+  #       204:
+  #         description: 'The updated avoid posting entry'
+  #       422:
+  #         description: 'Validation error'
+  #       403:
+  #         description: 'Access denied'
+  #   delete:
+  #     operationId: 'destroyAvoidPosting'
+  #     x-access-level: 'bd_staff'
+  #     tags:
+  #       - 'avoid_postings'
+  #     summary: 'Destroy an avoid posting entry'
+  #     description: 'Permanently destroys an avoid posting entry and redirects to the artist it belonged to.'
+  #     parameters:
+  #       - name: 'id'
+  #         in: 'path'
+  #         required: true
+  #         description: 'The ID or artist name of the avoid posting entry'
+  #         schema:
+  #           type: 'string'
+  #     responses:
+  #       302:
+  #         description: 'Redirects to the artist after destroying the entry'
+  #       403:
+  #         description: 'Access denied'
+  #       404:
+  #         description: 'Avoid posting entry not found'
+  # /avoid_postings/{id}/delete.json:
+  #   put:
+  #     operationId: 'deleteAvoidPosting'
+  #     x-access-level: 'bd_staff'
+  #     tags:
+  #       - 'avoid_postings'
+  #     summary: 'Soft-delete an avoid posting entry'
+  #     description: 'Marks an avoid posting entry as inactive (soft delete).'
+  #     parameters:
+  #       - name: 'id'
+  #         in: 'path'
+  #         required: true
+  #         description: 'The ID or artist name of the avoid posting entry'
+  #         schema:
+  #           type: 'string'
+  #     responses:
+  #       302:
+  #         description: 'Redirects back after soft-deleting'
+  #       403:
+  #         description: 'Access denied'
+  # /avoid_postings/{id}/undelete.json:
+  #   put:
+  #     operationId: 'undeleteAvoidPosting'
+  #     x-access-level: 'bd_staff'
+  #     tags:
+  #       - 'avoid_postings'
+  #     summary: 'Undelete an avoid posting entry'
+  #     description: 'Restores a soft-deleted avoid posting entry to active status.'
+  #     parameters:
+  #       - name: 'id'
+  #         in: 'path'
+  #         required: true
+  #         description: 'The ID or artist name of the avoid posting entry'
+  #         schema:
+  #           type: 'string'
+  #     responses:
+  #       302:
+  #         description: 'Redirects back after undeleting'
+  #       403:
+  #         description: 'Access denied'
+  # /avoid_posting_versions.json:
+  #   get:
+  #     operationId: 'getAvoidPostingVersions'
+  #     x-access-level: 'anonymous'
+  #     tags:
+  #       - 'avoid_postings'
+  #     summary: 'Get a list of avoid posting versions'
+  #     description: 'Returns a list of avoid posting version history entries.'
+  #     parameters:
+  #       - name: 'page'
+  #         in: 'query'
+  #         required: false
+  #         description: 'The page number to retrieve'
+  #         schema:
+  #           type: 'integer'
+  #       - name: 'limit'
+  #         in: 'query'
+  #         required: false
+  #         description: 'The number of versions to retrieve per page'
+  #         schema:
+  #           type: 'integer'
+  #       - name: 'search[updater_name]'
+  #         in: 'query'
+  #         required: false
+  #         description: 'Filter by updater username'
+  #         schema:
+  #           type: 'string'
+  #       - name: 'search[updater_id]'
+  #         in: 'query'
+  #         required: false
+  #         description: 'Filter by updater user ID'
+  #         schema:
+  #           type: 'integer'
+  #       - name: 'search[artist_name]'
+  #         in: 'query'
+  #         required: false
+  #         description: 'Filter by artist name'
+  #         schema:
+  #           type: 'string'
+  #       - name: 'search[artist_id]'
+  #         in: 'query'
+  #         required: false
+  #         description: 'Filter by artist ID'
+  #         schema:
+  #           type: 'integer'
+  #       - name: 'search[any_name_matches]'
+  #         in: 'query'
+  #         required: false
+  #         description: 'Filter by partial name match'
+  #         schema:
+  #           type: 'string'
+  #       - name: 'search[any_other_name_matches]'
+  #         in: 'query'
+  #         required: false
+  #         description: 'Filter by other name match'
+  #         schema:
+  #           type: 'string'
+  #       - name: 'search[group_name]'
+  #         in: 'query'
+  #         required: false
+  #         description: 'Filter by group name'
+  #         schema:
+  #           type: 'string'
+  #       - name: 'search[is_active]'
+  #         in: 'query'
+  #         required: false
+  #         description: 'Filter by active status'
+  #         schema:
+  #           type: 'boolean'
+  #     responses:
+  #       200:
+  #         description: 'A list of avoid posting versions'
+  #         content:
+  #           application/json:
+  #             schema:
+  #               type: 'array'
+  #               items:
+  #                 $ref: '#/components/schemas/AvoidPostingVersion'
+  #       400:
+  #         description: 'Invalid request parameters'
+  #       500:
+  #         description: 'Server error'
   /takedowns.json:
     get:
       operationId: 'getTakedowns'
@@ -7870,7 +7868,7 @@ paths:
           description: 'Access denied'
         404:
           description: 'IP ban not found'
-  /artist_versions.json:
+  /director_versions.json:
     get:
       operationId: 'getArtistVersions'
       x-access-level: 'anonymous'
@@ -7940,7 +7938,7 @@ paths:
           description: 'Invalid request parameters'
         500:
           description: 'Server error'
-  /artist_urls.json:
+  /director_urls.json:
     get:
       operationId: 'getArtistUrls'
       x-access-level: 'anonymous'
@@ -14097,9 +14095,9 @@ components:
       type: 'object'
       required:
         - 'general'
-        - 'artist'
+        - 'director'
         - 'contributor'
-        - 'copyright'
+        - 'franchise'
         - 'character'
         - 'species'
         - 'invalid'
@@ -14111,7 +14109,7 @@ components:
           items:
             type: 'string'
           description: 'An array of general tags'
-        artist:
+        director:
           type: 'array'
           items:
             type: 'string'
@@ -14121,7 +14119,7 @@ components:
           items:
             type: 'string'
           description: 'An array of contributor tags'
-        copyright:
+        franchise:
           type: 'array'
           items:
             type: 'string'
@@ -16238,79 +16236,79 @@ components:
           type: 'string'
           format: 'date-time'
           description: 'When the staff note was last updated'
-    AvoidPosting:
-      type: 'object'
-      description: 'An avoid posting (Do Not Post) entry for an artist.'
-      required:
-        - 'id'
-        - 'creator_id'
-        - 'updater_id'
-        - 'artist_id'
-        - 'is_active'
-        - 'created_at'
-        - 'updated_at'
-      properties:
-        id:
-          type: 'integer'
-          description: 'The unique ID of the avoid posting entry'
-        creator_id:
-          type: 'integer'
-          description: 'The ID of the user who created the entry'
-        updater_id:
-          type: 'integer'
-          description: 'The ID of the user who last updated the entry'
-        artist_id:
-          type: 'integer'
-          description: 'The ID of the associated artist'
-        details:
-          type: 'string'
-          description: 'Details about the avoid posting entry'
-        staff_notes:
-          type: 'string'
-          description: 'Staff-only notes (hidden from non-staff users)'
-        is_active:
-          type: 'boolean'
-          description: 'Whether the entry is active'
-        created_at:
-          type: 'string'
-          format: 'date-time'
-          description: 'When the entry was created'
-        updated_at:
-          type: 'string'
-          format: 'date-time'
-          description: 'When the entry was last updated'
-    AvoidPostingVersion:
-      type: 'object'
-      description: 'A version history entry for an avoid posting record.'
-      required:
-        - 'id'
-        - 'updater_id'
-        - 'avoid_posting_id'
-        - 'is_active'
-        - 'updated_at'
-      properties:
-        id:
-          type: 'integer'
-          description: 'The unique ID of the version'
-        updater_id:
-          type: 'integer'
-          description: 'The ID of the user who made this version'
-        avoid_posting_id:
-          type: 'integer'
-          description: 'The ID of the associated avoid posting entry'
-        details:
-          type: 'string'
-          description: 'Details at this version'
-        staff_notes:
-          type: 'string'
-          description: 'Staff notes at this version (hidden from non-janitors)'
-        is_active:
-          type: 'boolean'
-          description: 'Whether the entry was active at this version'
-        updated_at:
-          type: 'string'
-          format: 'date-time'
-          description: 'When this version was created'
+    # AvoidPosting:
+    #   type: 'object'
+    #   description: 'An avoid posting (Do Not Post) entry for an artist.'
+    #   required:
+    #     - 'id'
+    #     - 'creator_id'
+    #     - 'updater_id'
+    #     - 'artist_id'
+    #     - 'is_active'
+    #     - 'created_at'
+    #     - 'updated_at'
+    #   properties:
+    #     id:
+    #       type: 'integer'
+    #       description: 'The unique ID of the avoid posting entry'
+    #     creator_id:
+    #       type: 'integer'
+    #       description: 'The ID of the user who created the entry'
+    #     updater_id:
+    #       type: 'integer'
+    #       description: 'The ID of the user who last updated the entry'
+    #     artist_id:
+    #       type: 'integer'
+    #       description: 'The ID of the associated artist'
+    #     details:
+    #       type: 'string'
+    #       description: 'Details about the avoid posting entry'
+    #     staff_notes:
+    #       type: 'string'
+    #       description: 'Staff-only notes (hidden from non-staff users)'
+    #     is_active:
+    #       type: 'boolean'
+    #       description: 'Whether the entry is active'
+    #     created_at:
+    #       type: 'string'
+    #       format: 'date-time'
+    #       description: 'When the entry was created'
+    #     updated_at:
+    #       type: 'string'
+    #       format: 'date-time'
+    #       description: 'When the entry was last updated'
+    # AvoidPostingVersion:
+    #   type: 'object'
+    #   description: 'A version history entry for an avoid posting record.'
+    #   required:
+    #     - 'id'
+    #     - 'updater_id'
+    #     - 'avoid_posting_id'
+    #     - 'is_active'
+    #     - 'updated_at'
+    #   properties:
+    #     id:
+    #       type: 'integer'
+    #       description: 'The unique ID of the version'
+    #     updater_id:
+    #       type: 'integer'
+    #       description: 'The ID of the user who made this version'
+    #     avoid_posting_id:
+    #       type: 'integer'
+    #       description: 'The ID of the associated avoid posting entry'
+    #     details:
+    #       type: 'string'
+    #       description: 'Details at this version'
+    #     staff_notes:
+    #       type: 'string'
+    #       description: 'Staff notes at this version (hidden from non-janitors)'
+    #     is_active:
+    #       type: 'boolean'
+    #       description: 'Whether the entry was active at this version'
+    #     updated_at:
+    #       type: 'string'
+    #       format: 'date-time'
+    #       description: 'When this version was created'
     Takedown:
       type: 'object'
       description: 'A takedown request. Most fields are hidden from non-staff users.'
@@ -16417,7 +16415,7 @@ components:
         notes_changed:
           type: 'boolean'
           nullable: true
-          description: "Whether the artist's notes were changed in this version"
+          description: "Whether the director's notes were changed in this version"
         created_at:
           type: 'string'
           format: 'date-time'
@@ -18469,50 +18467,50 @@ components:
       description: 'Must be "Submit" to confirm the transfer'
       enum:
         - 'Submit'
-    GetAvoidPostingsSearchOrder:
-      type: 'string'
-      enum:
-        - 'artist_name'
-        - 'artist_name_asc'
-        - 'artist_name_desc'
-        - 'created_at'
-        - 'updated_at'
-    CreateAvoidPostingBody:
-      type: 'object'
-      properties:
-        avoid_posting[details]:
-          type: 'string'
-          description: 'Details about the avoid posting entry'
-        avoid_posting[staff_notes]:
-          type: 'string'
-          description: 'Staff-only notes'
-        avoid_posting[is_active]:
-          type: 'boolean'
-          description: 'Whether the entry is active'
-        avoid_posting[artist_attributes][name]:
-          type: 'string'
-          description: "The artist's name"
-        avoid_posting[artist_attributes][other_names_string]:
-          type: 'string'
-          description: 'Other names for the artist (space-separated)'
-        avoid_posting[artist_attributes][group_name]:
-          type: 'string'
-          description: "The artist's group name"
-        avoid_posting[artist_attributes][linked_user_id]:
-          type: 'integer'
-          description: 'The ID of the linked user'
-    UpdateAvoidPostingBody:
-      type: 'object'
-      properties:
-        avoid_posting[details]:
-          type: 'string'
-          description: 'Details about the avoid posting entry'
-        avoid_posting[staff_notes]:
-          type: 'string'
-          description: 'Staff-only notes'
-        avoid_posting[is_active]:
-          type: 'boolean'
-          description: 'Whether the entry is active'
+    # GetAvoidPostingsSearchOrder:
+    #   type: 'string'
+    #   enum:
+    #     - 'artist_name'
+    #     - 'artist_name_asc'
+    #     - 'artist_name_desc'
+    #     - 'created_at'
+    #     - 'updated_at'
+    # CreateAvoidPostingBody:
+    #   type: 'object'
+    #   properties:
+    #     avoid_posting[details]:
+    #       type: 'string'
+    #       description: 'Details about the avoid posting entry'
+    #     avoid_posting[staff_notes]:
+    #       type: 'string'
+    #       description: 'Staff-only notes'
+    #     avoid_posting[is_active]:
+    #       type: 'boolean'
+    #       description: 'Whether the entry is active'
+    #     avoid_posting[artist_attributes][name]:
+    #       type: 'string'
+    #       description: "The artist's name"
+    #     avoid_posting[artist_attributes][other_names_string]:
+    #       type: 'string'
+    #       description: 'Other names for the artist (space-separated)'
+    #     avoid_posting[artist_attributes][group_name]:
+    #       type: 'string'
+    #       description: "The artist's group name"
+    #     avoid_posting[artist_attributes][linked_user_id]:
+    #       type: 'integer'
+    #       description: 'The ID of the linked user'
+    # UpdateAvoidPostingBody:
+    #   type: 'object'
+    #   properties:
+    #     avoid_posting[details]:
+    #       type: 'string'
+    #       description: 'Details about the avoid posting entry'
+    #     avoid_posting[staff_notes]:
+    #       type: 'string'
+    #       description: 'Staff-only notes'
+    #     avoid_posting[is_active]:
+    #       type: 'boolean'
+    #       description: 'Whether the entry is active'
     GetTakedownsSearchOrder:
       type: 'string'
       enum:

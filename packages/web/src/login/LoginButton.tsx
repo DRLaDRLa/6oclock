@@ -28,7 +28,7 @@ export const LoginButton: React.FC<LoginButtonProps> = ({
         },
       }}
     >
-      Log in with e621
+      Log in with e6ai
     </Button>
   );
 };

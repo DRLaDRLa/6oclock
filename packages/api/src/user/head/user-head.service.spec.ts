@@ -35,8 +35,8 @@ const upstreamPost = (id: number): unknown => ({
   created_at: new Date('2024-01-01T00:00:00Z'),
   updated_at: new Date('2024-01-01T00:00:00Z'),
   files: {
-    original: { url: 'https://static1.e621.net/data/ab/cd/abcd.jpg' },
-    preview: { jpg: 'https://static1.e621.net/data/preview/ab/cd/abcd.jpg' },
+    original: { url: 'https://static1.e6ai.net/data/ab/cd/abcd.jpg' },
+    preview: { jpg: 'https://static1.e6ai.net/data/preview/ab/cd/abcd.jpg' },
     sample: { jpg: null },
     meta: { has_sample: false, ext: 'jpg' },
   },
@@ -52,7 +52,7 @@ const upstreamPost = (id: number): unknown => ({
 const avatar = (partial: Partial<PostEntity> = {}): PostEntity =>
   ({
     id: 900,
-    preview: 'https://static1.e621.net/data/preview/ab/cd/abcd.jpg',
+    preview: 'https://static1.e6ai.net/data/preview/ab/cd/abcd.jpg',
     rating: PostRating.s,
     deleted: false,
     ...partial,

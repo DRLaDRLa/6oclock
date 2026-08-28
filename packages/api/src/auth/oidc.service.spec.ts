@@ -5,7 +5,7 @@ import { AppConfigKeys } from 'src/app/config.module';
 import { OidcGrantError, OidcService } from './oidc.service';
 
 const settings: Record<string, string> = {
-  [AppConfigKeys.OIDC_ISSUER]: 'https://e621.net///',
+  [AppConfigKeys.OIDC_ISSUER]: 'https://e6ai.net///',
   [AppConfigKeys.OIDC_CLIENT_ID]: 'a-client',
   [AppConfigKeys.OIDC_CLIENT_SECRET]: 'a-secret',
   [AppConfigKeys.OIDC_REDIRECT_URI]: 'https://six.example/callback',
@@ -42,7 +42,7 @@ describe('OidcService', () => {
   describe('authorizeUrl', () => {
     it('strips trailing slashes off the issuer so the path is not doubled', () => {
       expect(service.authorizeUrl('a-state', 'a-challenge')).toContain(
-        'https://e621.net/oauth/authorize',
+        'https://e6ai.net/oauth/authorize',
       );
     });
 
@@ -123,7 +123,7 @@ describe('OidcService', () => {
         (fetchMock.mock.calls[0]![1] as { body: string }).body,
       );
 
-      expect(fetchMock.mock.calls[0]![0]).toBe('https://e621.net/oauth/token');
+      expect(fetchMock.mock.calls[0]![0]).toBe('https://e6ai.net/oauth/token');
       expect(body).toContain('grant_type=refresh_token');
       expect(body).toContain('refresh_token=a-refresh-token');
       expect(body).toContain('client_secret=a-secret');

@@ -38,7 +38,7 @@ export const UserCard: React.FC = () => {
       <Box sx={{ flexGrow: 1 }} />
       <IconButton
         component={Link}
-        to={`https://e621.net/users/${user?.id}`}
+        to={`https://e6ai.net/users/${user?.id}`}
         target="_blank"
         disabled={!user}
       >

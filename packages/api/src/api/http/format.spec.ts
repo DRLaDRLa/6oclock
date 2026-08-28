@@ -40,7 +40,7 @@ describe('postFormatInterceptor', () => {
   });
 
   it('reads the path out of an absolute url', () => {
-    expect(apply('https://e621.net/posts.json?tags=canine')).toMatchObject({
+    expect(apply('https://e6ai.net/posts.json?tags=canine')).toMatchObject({
       v2: 'true',
     });
   });
@@ -54,7 +54,7 @@ describe('postFormatInterceptor', () => {
   });
 
   it('handles an absolute url', () => {
-    expect(apply('https://e621.net/posts.json')).toMatchObject({ v2: 'true' });
+    expect(apply('https://e6ai.net/posts.json')).toMatchObject({ v2: 'true' });
   });
 
   it('overrides a caller trying to choose another format', () => {
