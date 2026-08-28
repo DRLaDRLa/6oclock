@@ -9402,6 +9402,7 @@ components:
           description: "The MD5 hash of the replacement file"
         source:
           type: "string"
+          nullable: true
           description: "The source URLs for the replacement, separated by newlines"
         file_name:
           type: "string"
@@ -11499,6 +11500,7 @@ components:
         - "pending"
         - "partial"
         - "approved"
+        - "rejected"
       description: "The current status of the appeal"
     TicketStatus:
       type: "string"
@@ -11685,6 +11687,8 @@ components:
         - "expunged"
         - "changed_bg_color"
         - "replacement_penalty_changed"
+        - "owner_changed"
+        - "replacement_moved"
     PostEventExtraData:
       type: "object"
       nullable: true
@@ -11956,7 +11960,9 @@ components:
         - "pending_unclaimed"
         - "pending_claimed"
         - "partial"
+        - "handled"
         - "approved"
+        - "rejected"
     GetTicketsSearchStatus:
       type: "string"
       enum:

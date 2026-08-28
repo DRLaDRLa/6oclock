@@ -42,8 +42,8 @@ export class PostReplacementEntity extends LabelLink {
   @Column({ type: 'text' })
   md5: string;
 
-  @Column({ type: 'text' })
-  source: string;
+  @Column({ type: 'text', nullable: true })
+  source: string | null;
 
   @Column({ type: 'text' })
   fileName: string;

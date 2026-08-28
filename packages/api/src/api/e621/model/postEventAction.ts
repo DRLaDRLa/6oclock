@@ -46,4 +46,6 @@ export enum PostEventAction {
   expunged = 'expunged',
   changed_bg_color = 'changed_bg_color',
   replacement_penalty_changed = 'replacement_penalty_changed',
+  owner_changed = 'owner_changed',
+  replacement_moved = 'replacement_moved',
 }

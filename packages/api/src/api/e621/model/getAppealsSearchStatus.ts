@@ -22,5 +22,7 @@ export enum GetAppealsSearchStatus {
   pending_unclaimed = 'pending_unclaimed',
   pending_claimed = 'pending_claimed',
   partial = 'partial',
+  handled = 'handled',
   approved = 'approved',
+  rejected = 'rejected',
 }

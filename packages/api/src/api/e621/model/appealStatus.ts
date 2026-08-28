@@ -24,4 +24,5 @@ export enum AppealStatus {
   pending = 'pending',
   partial = 'partial',
   approved = 'approved',
+  rejected = 'rejected',
 }
