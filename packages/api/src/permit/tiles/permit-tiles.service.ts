@@ -15,6 +15,8 @@ import {
 } from 'src/common';
 import { ItemType } from 'src/label/label.entity';
 import { ManifestEntity } from 'src/manifest/manifest.entity';
+import { PostEventEntity } from 'src/post-event/post-event.entity';
+import { PostVersionEntity } from 'src/post-version/post-version.entity';
 import { Repository } from 'typeorm';
 
 import { PermitEntity, PermitLabelEntity } from '../permit.entity';
@@ -59,31 +61,78 @@ export class PermitTilesService implements TileService {
   }
 
   async findMissing(range: TilingRange): Promise<Date[]> {
-    const stale: { time: Date }[] = await this.tileRepository.query(
-      `
-      SELECT date_trunc('hour', permit.created_at) AS time
-      FROM permits permit
-      LEFT JOIN ${this.tileRepository.metadata.tableName} tile
-        ON tile.time = date_trunc('hour', permit.created_at)
-      WHERE permit.created_at >= $1 AND permit.created_at < $2
-      GROUP BY 1, tile.updated_at
-      HAVING tile.updated_at IS NULL OR max(permit.updated_at) > tile.updated_at
-      `,
-      [range.dateRange.startDate, range.dateRange.endDate],
-    );
+    const window = {
+      start: range.dateRange.startDate,
+      end: range.dateRange.endDate,
+    };
+
+    const stale = await this.permitRepository
+      .createQueryBuilder('permit')
+      .select("date_trunc('hour', permit.createdAt)", 'time')
+      .leftJoin(
+        PermitTilesEntity,
+        'tile',
+        "tile.time = date_trunc('hour', permit.createdAt)",
+      )
+      .where('permit.createdAt >= :start', window)
+      .andWhere('permit.createdAt < :end', window)
+      .groupBy("date_trunc('hour', permit.createdAt)")
+      .addGroupBy('tile.updatedAt')
+      .having(
+        'tile.updated_at IS NULL OR max(permit.updated_at) > tile.updated_at',
+      )
+      .getRawMany<{ time: Date }>();
+
+    const immature = await this.tileRepository
+      .createQueryBuilder('tile')
+      .select('tile.time', 'time')
+      .where('tile.time >= :start', window)
+      .andWhere('tile.time < :end', window)
+      .andWhere('tile.updated_at < tile.time + :period::interval', {
+        period: this.reviewPeriod,
+      })
+      .andWhere('now() >= tile.time + :period::interval', {
+        period: this.reviewPeriod,
+      })
+      .getRawMany<{ time: Date }>();
 
     const times = new Map<number, Date>();
+    const add = (time: Date): void => {
+      times.set(time.getTime(), time);
+    };
+
     for (const time of await findMissingOrStaleTiles(
       this.tileRepository,
       range,
     )) {
-      times.set(time.getTime(), time);
+      add(time);
     }
-    for (const row of stale) {
-      times.set(new Date(row.time).getTime(), new Date(row.time));
+    for (const row of [...stale, ...immature]) {
+      add(new Date(row.time));
     }
 
     return [...times.values()].sort((a, b) => a.getTime() - b.getTime());
+  }
+
+  async updatedAt(manifests: ManifestEntity[]): Promise<Map<number, Date>> {
+    if (manifests.length === 0) return new Map();
+
+    const rows = await this.manifestRepository
+      .createQueryBuilder('manifest')
+      .select('manifest.id', 'id')
+      .addSelect('max(tile.updatedAt)', 'updated')
+      .innerJoin(
+        PermitTilesEntity,
+        'tile',
+        'tile.time >= manifest.startDate AND tile.time < manifest.endDate',
+      )
+      .where('manifest.id IN (:...ids)', {
+        ids: manifests.map((manifest) => manifest.id),
+      })
+      .groupBy('manifest.id')
+      .getRawMany<{ id: number; updated: Date }>();
+
+    return new Map(rows.map((row) => [row.id, new Date(row.updated)]));
   }
 
   private readonly undecidedFrom = `
@@ -96,15 +145,15 @@ export class PermitTilesService implements TileService {
       )
       AND NOT EXISTS (
         SELECT 1 FROM post_events e
-        WHERE e.post_id = pv.post_id AND e.action IN ($3, $4)
+        WHERE e.post_id = pv.post_id AND e.action = $3
       )
       AND NOT EXISTS (
         SELECT 1 FROM post_events e
         WHERE e.post_id = pv.post_id
-          AND e.action = $5
+          AND e.action = $4
           AND e.created_at < pv.updated_at + $2::interval
       )
-      AND pv.post_id <> ALL($6::int[])
+      AND pv.post_id <> ALL($5::int[])
   `;
 
   private undecidedParams(pending: number[], capturedAt: Date): unknown[] {
@@ -112,7 +161,6 @@ export class PermitTilesService implements TileService {
       capturedAt,
       this.reviewPeriod,
       PostEventAction.approved,
-      PostEventAction.unapproved,
       PostEventAction.deleted,
       pending,
     ];
@@ -125,12 +173,13 @@ export class PermitTilesService implements TileService {
     capturedAt: Date,
   ): Promise<number> {
     const candidates: { id: number; uploader_id: number; created_at: Date }[] =
+      // eslint-disable-next-line no-restricted-syntax -- shares one SQL fragment across two statements
       await this.permitRepository.query(
         `
         SELECT pv.post_id AS id, pv.updater_id AS uploader_id, pv.updated_at AS created_at
         ${this.undecidedFrom}
-          AND pv.updated_at >= $7
-          AND pv.updated_at < $8
+          AND pv.updated_at >= $6
+          AND pv.updated_at < $7
         `,
         [
           ...this.undecidedParams(pending, capturedAt),
@@ -172,35 +221,45 @@ export class PermitTilesService implements TileService {
   }
 
   private async deriveRange(range: DateRange): Promise<number> {
-    const candidates: { id: number; uploader_id: number; created_at: Date }[] =
-      await this.permitRepository.query(
-        `
-        SELECT pv.post_id AS id, pv.updater_id AS uploader_id, pv.updated_at AS created_at
-        FROM post_versions pv
-        WHERE pv.version = 1
-          AND pv.updated_at >= $1
-          AND pv.updated_at < $2
-          AND NOT EXISTS (
-            SELECT 1 FROM post_events e
-            WHERE e.post_id = pv.post_id AND e.action IN ($3, $4)
-          )
-          AND NOT EXISTS (
-            SELECT 1 FROM post_events e
-            WHERE e.post_id = pv.post_id
-              AND e.action = $5
-              AND e.created_at < pv.updated_at + $6::interval
-          )
-          AND pv.updated_at < now() - $6::interval
-        `,
-        [
-          range.startDate,
-          range.endDate,
-          PostEventAction.approved,
-          PostEventAction.unapproved,
-          PostEventAction.deleted,
-          this.reviewPeriod,
-        ],
-      );
+    const candidates = await this.permitRepository.manager
+      .createQueryBuilder(PostVersionEntity, 'pv')
+      .select('pv.postId', 'id')
+      .addSelect('pv.updaterId', 'uploader_id')
+      .addSelect('pv.updatedAt', 'created_at')
+      .where('pv.version = 1')
+      .andWhere('pv.updatedAt >= :start', { start: range.startDate })
+      .andWhere('pv.updatedAt < :end', { end: range.endDate })
+      .andWhere('pv.updatedAt < now() - :period::interval', {
+        period: this.reviewPeriod,
+      })
+      .andWhere((qb) => {
+        const approved = qb
+          .subQuery()
+          .select('1')
+          .from(PostEventEntity, 'approval')
+          .where('approval.postId = pv.postId')
+          .andWhere('approval.action = :approved')
+          .getQuery();
+
+        return `NOT EXISTS ${approved}`;
+      })
+      .andWhere((qb) => {
+        const deleted = qb
+          .subQuery()
+          .select('1')
+          .from(PostEventEntity, 'deletion')
+          .where('deletion.postId = pv.postId')
+          .andWhere('deletion.action = :deleted')
+          .andWhere('deletion.createdAt < pv.updated_at + :period::interval')
+          .getQuery();
+
+        return `NOT EXISTS ${deleted}`;
+      })
+      .setParameters({
+        approved: PostEventAction.approved,
+        deleted: PostEventAction.deleted,
+      })
+      .getRawMany<{ id: number; uploader_id: number; created_at: Date }>();
 
     await this.permitRepository.delete({ createdAt: range.find() });
 
