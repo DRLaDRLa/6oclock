@@ -5,7 +5,6 @@
  * backend data aggregate for 6 o'clock
  * OpenAPI spec version: 1.0.0
  */
-import type { Activity } from './activity';
 import type { TimeScale } from './timeScale';
 import type { UserArea } from './userArea';
 
@@ -16,7 +15,7 @@ export type GetPerformanceParams = {
   endDate?: Date;
   timezone?: string;
   area?: UserArea;
-  activities?: Activity[];
+  activities?: string[];
   userId?: number;
   head?: boolean;
 };

@@ -21,7 +21,6 @@ const summary = (partial?: Partial<PerformanceSummary>): PerformanceSummary =>
     trend: 0,
     history: [],
     activity: {},
-    days: 30,
     ...partial,
   }) as PerformanceSummary;
 
@@ -113,7 +112,11 @@ describe('exportPerformanceToCSV', () => {
 
   it('leaves out an activity nobody did any of', () => {
     exportPerformanceToCSV(
-      [summary({ activity: { ticketHandle: 5, postDelete: 0 } } as never)],
+      [
+        summary({
+          activity: { ticket_update_approved: 5, deleted: 0 },
+        } as never),
+      ],
       'janitor',
       range,
     );
@@ -125,8 +128,14 @@ describe('exportPerformanceToCSV', () => {
   it('keeps an activity somebody did, even if others did none', () => {
     exportPerformanceToCSV(
       [
-        summary({ userId: 1, activity: { ticketHandle: 5 } } as never),
-        summary({ userId: 2, activity: { ticketHandle: 0 } } as never),
+        summary({
+          userId: 1,
+          activity: { ticket_update_approved: 5 },
+        } as never),
+        summary({
+          userId: 2,
+          activity: { ticket_update_approved: 0 },
+        } as never),
       ],
       'janitor',
       range,
@@ -142,7 +151,7 @@ describe('exportPerformanceToCSV', () => {
     exportPerformanceToCSV(
       [
         summary({
-          activity: { ticketHandle: 5, postApprove: 3, postDelete: 1 },
+          activity: { ticket_update_approved: 5, approved: 3, deleted: 1 },
         } as never),
       ],
       'janitor',
@@ -247,7 +256,7 @@ describe('exportPerformanceToCSV', () => {
       range,
     );
 
-    expect(written.split('\n')).toHaveLength(3);
+    expect(written.trimEnd().split('\n')).toHaveLength(3);
   });
 
   describe('handing the file to the browser', () => {
@@ -277,15 +286,14 @@ describe('exportPerformanceToCSV', () => {
     });
   });
 
-  describe('characterised, not specified', () => {
-    it('does not escape a quote in a name, so the row splits early', () => {
-      exportPerformanceToCSV(
-        [summary({ head: { id: 500, name: 'some"one' } } as never)],
-        'janitor',
-        range,
-      );
+  it('doubles a quote inside a cell, so the row stays whole', () => {
+    exportPerformanceToCSV(
+      [summary({ head: { id: 500, name: 'some"one' } } as never)],
+      'janitor',
+      range,
+    );
 
-      expect(written).toContain('"some"one"');
-    });
+    expect(written).toContain('"some""one"');
+    expect(written).not.toContain('"some"one"');
   });
 });
