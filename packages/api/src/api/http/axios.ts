@@ -15,7 +15,7 @@ import {
 import { redactErrorInterceptor } from './redact';
 
 export const AXIOS_INSTANCE = Axios.create({
-  baseURL: 'https://e6ai.net',
+  baseURL: 'https://floofgens.net',
   headers: {
     'User-Agent': USER_AGENT,
   },

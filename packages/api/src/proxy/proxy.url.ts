@@ -1,4 +1,4 @@
-export const STATIC_HOST = 'https://static1.e6ai.net';
+export const STATIC_HOST = 'https://static1.floofgens.net';
 
 export const PROXY_BASE = '/api/proxy';
 

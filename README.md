@@ -2,7 +2,7 @@
 
 ![6oclock](packages/web/public/assets/6oclock.svg)
 
-e6 staff dashboard
+floofgens staff dashboard, a fork of [clynamic/6oclock](https://github.com/clynamic/6oclock).
 
 ## Development Setup
 
@@ -16,7 +16,7 @@ e6 staff dashboard
 1. Clone the repository
 
 ```bash
-git clone https://github.com/clynamic/6oclock.git
+git clone https://github.com/DRLaDRLa/6oclock.git
 ```
 
 2. Install dependencies

@@ -38,7 +38,7 @@ export enum AppConfigKeys {
           .allow(''),
         DATA_DIR: Joi.string().optional().default('./data'),
         TECHNICIANS: Joi.string().optional().default('').allow(''),
-        OIDC_ISSUER: Joi.string().optional().default('https://e6ai.net'),
+        OIDC_ISSUER: Joi.string().optional().default('https://floofgens.net'),
         OIDC_CLIENT_ID: Joi.string().optional().default('').allow(''),
         OIDC_CLIENT_SECRET: Joi.string().optional().default('').allow(''),
         OIDC_REDIRECT_URI: Joi.string().optional().default('').allow(''),
